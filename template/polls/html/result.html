@@ -1,0 +1,92 @@
+{% extends 'polls/html/standard.html'%}
+{% load static %}
+
+{% block title%}
+<title>Poll No: {{poll.id}}</title>
+{% endblock %}
+
+{% block css%}
+<link rel='stylesheet' type='text/css' href="{% static 'css/poll.css'%}?v={random number/string}">
+{% endblock %}
+    
+{% block main %}
+    <div class="radius">
+        {% if poll.image %}
+        <img class='big-poll-image hundrad radius' src="{{poll.image.url}}" alt="Picture for Poll {{Poll.id}}">
+        {% endif %}
+        <div class="hundrad">
+            <div class='hundrad flex flex-horizontally-center'>
+                <div class='inline'>
+                    <img class='poll-profile cover inline radius50' {% if poll.user.profile.image %} src='{{poll.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+                    <div class='inline-block horizontally-center'>{{poll.user.profile.fullname}}</div>
+                </div>
+                <div class='inline-block flex-horizontally-center'>
+                    Votes:{{poll.total_votes}} <b style="font-size: larger;">.</b> Comments:{{poll.total_comments}}
+                </div>
+            </div>
+            <hr style="margin: 0;border:.5px solid rgba(187, 186, 186, 0.164)">
+            <div class="no headline"><span class='q'>Q:</span> {{poll.headline}}</div>
+            <div class="hundrad indent" >{{poll.description}}</div>
+        </div>
+        <div style="margin-top: 15px;">
+            {% csrf_token %}
+            {% for c in choices%}
+            <div class='lebel-choice block radius'>
+                <div class='setheight' style="position: relative;top:0px;left:0px;background-color:rgba(109, 105, 105, 0.452);z-index:1">
+                    <h3 class='no padding height' style="position: relative;z-index:3;height:fit-content">{{c.name}}</h3>
+                    <div class='result'></div>
+                    <input type="hidden" name="result" value="{{c.vote}}">
+                </div>
+                <div class='flex flex-horizontally-center padding' style="padding: 5px 0px;text-indent:15px;{% if c == vote %}background-color: rgb(90, 177, 228);{% endif %}">
+                    <div class="inline-block">{{c.description}}</div>
+                    {% if c.image %}
+                    <img class="inline-block choice-image radius" src="{{c.image.url}}" style="border: none;">
+                    {% endif %}
+                </div>
+            </div>      
+            {%endfor%}
+        </div>
+        <form class='no'>
+            <button class='button hundrad block' type="submit" value="Result" formaction="{% url 'polls:poll' poll.id %}" formmethod='GET'>Change Vote</button>
+        </form>
+    </div>
+    <div style="margin: 5px;">
+        <h3 class='no upper-padding'>Comments...</h3>
+        {% for comment in comments %}
+        <div class="flex flex-start upper-padding">
+            <img class='poll-profile cover inline radius50' {% if comment.user.profile.image %} src='{{comment.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+            <div>
+                <h4 class="no">{{comment.user.profile.fullname}}</h4>
+                <div>{{comment.comment}}</div>
+                <div class='flex flex-start upper-low-padding'>
+                    {% with id=comment.id%}                
+                    {% for reply in reply_comment|item:id %}
+                    <img class='poll-profile cover inline radius50' {% if reply.user.profile.image %} src='{{reply.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+                    <div>
+                        <h4 class="no">{{reply.user.profile.fullname}}</h4>
+                        <div>{{reply.comment}}</div>
+                    </div>
+                    {% endfor %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        const total_vote={{poll.total_votes}};
+        let choices=document.getElementsByClassName('result');
+        let values=document.getElementsByName('result');
+        if(total_vote!=0){
+            for(let i=0;i<choices.length;i++){
+                    choices[i].style.width=String((values[i].value/total_vote)*100)+'%';
+            }
+        }
+        let div_tags=document.getElementsByClassName('setheight');
+        let height_value=document.getElementsByClassName('height');
+        for(let i=0;i<div_tags.length;i++){
+            var h=height_value[i].offsetHeight;
+            div_tags[i].style.height=choices[i].style.height=String(h)+'px';
+        }
+    </script>
+{% endblock %}

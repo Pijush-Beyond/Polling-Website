@@ -1,0 +1,373 @@
+{% extends 'polls/html/standard.html'%}
+{% load static%}
+
+{% block title%}
+<title>Poll No: {{poll.id}}</title>
+{% endblock %}
+
+{% block css%}
+<link rel='stylesheet' type='text/css' href="{% static 'css/poll.css'%}">
+{% endblock %}
+    
+{% block main %}
+    <div>
+        <div style="background-color: rgb(223, 222, 222);border-radius:1.5vw">
+            <input type="hidden" id="poll_id" value="{{poll.id}}">
+            <input type="hidden" id="poll-creator" value="{{poll.user.id}}">
+            <div style="width: 100%;">
+                <div class="flex padding10" style="height: 50px;">
+                    <a href="/account/profile/{{user.id}}/" style="display: inline-block;"><img class='poll-profile cover inline radius50' {% if poll.user.profile.image %} src='{{poll.user.profile.image.url}}' {% else %} src="{% static 'image/profile.png' %}"{% endif %}></a>
+                    <div class="flex width100 horizontally-center" style="padding: 0px 5px;">
+                        <div>
+                            <h3 class="no"><a href="/account/profile/{{poll.user.id}}/" class="snap_profile"  onmouseenter="get_snap_profile(this)">{{poll.user.profile.fullname}}</a></h3>
+                            <span style="font-size: small;">{{poll.createing_time}}</span>
+                        </div>
+                        {% if user.id == poll.user.id%}
+                        <div class='comment-menu' style="position: relative;top:10px;height:20px">
+                            <div class="temporary extra-temp">
+                                <a class="option" href="{% url 'polls:edit' poll.id%}">edit</a><!-- poll edit url-->
+                                <a class="option" href="{% url 'polls:delete' poll.id%}">delete</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="padding: 10px 16px;">
+                    {% if poll.headline %}<h4 class="no">{{poll.headline}}</h4>{% endif %}
+                    <div class="pre-wrap">{{poll.description}}</div>
+                </div>
+                {% if poll.media_set.count != 0 %}
+                {% if poll.media_set.all.0.media_type != 'file' %}
+                <div style="position: relative;overflow:hidden" class="post-picture-container"><!--this is for poll photo slide-->
+                    {% for media in poll.media_set.all %}
+                    {% if media.media_type == 'img'%}
+                    <div class="no fade" {% if forloop.counter != 1 %} style="display: none;" {% endif %}><!--image for poll or the post-->
+                        <img src="{{media.img.url}}" class="poll-img">
+                        <!--<i class="fas fa-expand" onclick="fullscreen()"></i>-->
+                    </div>
+                    {% else %}
+                    <div class="poll-img no fade" style="position:relative;{% if forloop.counter != 1 %};display: none;{% endif %}">
+                        <video src="{{media.video.url}}" style="width: 100%;"  onplay="play(this,true)" onpause="pause(this,true)" onvolumechange="this.muted?mute(this,true):unmute(this,true)" loop></video>
+                        <i class="fas fa-play-circle" onclick="play(this.parentElement.firstElementChild)"></i>
+                        <i class="fas fa-pause-circle" onclick="pause(this.parentElement.firstElementChild)" style="display: none;"></i>
+                        <i class="fas fa-volume-up volume" onclick="mute(this.parentElement.firstElementChild)"></i>
+                        <i class="fas fa-volume-mute volume" onclick="unmute(this.parentElement.firstElementChild)" style="display: none;"></i>
+                        <i class="fas fa-expand volume" onclick="this.parentElement.firstElementChild.requestFullscreen()"></i>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% if poll.media_set.count > 1%}
+                    <a class="poll-img-slide-controler" style="left: 0px;display:none" onclick="changeSlide(this,-1)"><span class="control-arrow">&lt;</span></a><!--this is right arrow control-->
+                    <a class="poll-img-slide-controler" style="right: 0px;display:inline-block" onclick="changeSlide(this,+1)"><span class="control-arrow">&gt;</span></a><!--this is left arrow control-->
+                    <input type="hidden" value="1">
+                    {% endif %}
+                </div>
+                {% if poll.media_set.count > 1 %}
+                <div style="text-align: center"><!--this are dotes for slide photo count and show them-->
+                    {% for _ in ''|center:poll.media_set.count %}
+                    <span onclick="showSlide(this.parentElement,{{ forloop.counter }})" class="slidecontroldot {% if forloop.counter == 1 %}activeslide{% endif %}"></span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% else %}<!--put the file display ifram-->
+                <div style="position: relative;overflow:hidden;width:100%;text-align:center">
+                    <div class="doc-container">
+                        <a href="{{ poll.media_set.all.0.files.url }}" target="_blank" class='doc'>View Pdf</a>
+                        <a href="{{ poll.media_set.all.0.files.url }}" download class="fas fa-file-download"></a>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+                {% if poll.choice_set.count != 0 %}
+                <hr>
+                <form><!--choice form-->
+                    {% csrf_token %}
+                    {% for choice in poll.choices_set.all %}
+                    <div style="margin:5px 7.5%;">
+                        <input type="radio" value="{{choice.id}}" name='vote' id="choice_id_{{choice.id}}" required {% if choice.id == vote %} checked {% endif %} style="display: none;">
+                        <div class="choice-background">
+                            <div class="flex choice"><!--this div for result meter-->
+                                <span class="choice-number choice_id_{{choice.id}}" onclick="select(this)">{{choice.id|add:num1}}</span>
+                                <span class="choice-label pre-wrap choice_id_{{choice.id}}" onclick="select(this)">{{choice.title}}</span>
+                                {% if choice.image or choice.description %}
+                                <button type="button" class='collapse-controller' onclick="collapse(this)">+</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if choice.image or choice.description %}
+                        <div class="choice-collapsed" style="max-height:0px;background-color:rgba(190, 189, 189, 0.801)">
+                            {% if choice.image %}
+                            <img src="{{choice.image.url}}" style="display: block;width: 100%" >
+                            {% endif %}
+                            {% if choice.description %}
+                            <div class="pre-wrap" style="padding: 5px 10px;">{{choice.description}}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div style="margin:5px 7.5%;">
+                        <button type="submit" class="choice-submit" formmethod="POST" formaction="{% url 'polls:vote' poll.id %}" disabled>Submit</button>
+                    </div>
+                    {% if poll.show_collapsed %}
+                    <script>
+                        for(tag of document.getElementsByClassName('choice-collapsed'))tag.style.maxHeight=tag.scrollHeight+'px';
+                    </script>
+                    {% endif %}
+                </form>
+                <hr>
+                {% endif %}
+                <div class="flex" style="padding:8px 10px"><!--post meta information-->
+                    <form action="{% url 'polls:like' poll.id %}" method="POST" class="inline-block"><!--like and dislike option-->
+                        <div style="display: inline-block;margin:0 7px">
+                            <input type="radio" name="like" value="1" style='display:none' {% if like == True %} checked {% endif %}>
+                            <i class="fas fa-thumbs-up" onclick="like(this)"></i>
+                            <a title="{{poll.like}}" style="font-weight:900;" onclick="showlist('{% url 'polls:likelist' poll.id %}',1)" class="clickable-a">{{poll.like|shortnumber}}</a>
+                        </div>
+                        <div style="display: inline-block;">
+                            <input type="radio" name="like" value="0" style='display:none' {% if like == False %} checked {% endif %}>
+                            <i class="fas fa-thumbs-down" onclick="like(this)"></i>
+                            <a title="{{poll.dislike}}" style="font-weight:900;" onclick="showlist('{% url 'polls:dislikelist' poll.id %}',2)" class="clickable-a">{{poll.dislike|shortnumber}}</a>
+                        </div>
+                    </form>
+                    <div class="inline-block" style="margin: 0 8px;">
+                        <div style="display: inline-block;">
+                            <i class="fas fa-vote-yea {% if vote %}bright-icons{% endif %}" title="{{poll.total_vote}}"></i>
+                            <a id="vote-count" title="{{poll.dislike}}" style="font-weight:900" onclick="showlist('{% url 'polls:votelist' poll.id %}',3)" class="clickable-a">{{poll.total_vote|shortnumber}}</a>
+                        </div>
+                        <span id='comment-count' class="fas fa-comments {% if commented %}bright-icons{% endif %}" title="{{poll.total_comment}}" style="margin: 0 5px;">{{poll.total_comment|shortnumber}}</span>
+                        <i class="fas fa-share" style="color: rgb(58, 58, 58);;margin:0 5px"></i>
+                    </div>
+                    <div class='whole-window' style="transform:scale(0,0)"><!--floating for like,dislike and voter list-->
+                        <div class="main-window-list">
+                            <div style="display: flex">
+                                <div style="width: 100%;">
+                                    <span class='personlist-option' onclick="showlist('{% url 'polls:likelist' poll.id %}',1)">Like</span>
+                                    <span class='personlist-option' onclick="showlist('{% url 'polls:dislikelist' poll.id %}',2)">Dislike</span>
+                                    <span class='personlist-option' onclick="showlist('{% url 'polls:votelist' poll.id %}',3)">Vote</span>
+                                </div>
+                                <button type="button" onclick="hidepersonlist()" class='personlist-button'>✖</button>
+                            </div>
+                            <div class="person-list"></div><!--this is the list-->
+                        </div>
+                        <script>
+                            function showlist(action,identifier){
+                                place=document.getElementsByClassName('person-list')[0];
+                                place.parentElement.parentElement.style.transform='scale(1,1)';
+                                place.innerHTML='<i class="fas fa-spinner fa-pulse block" style="margin:auto"></i>'
+                                let xhr=new XMLHttpRequest();
+                                xhr.open('get',action,true);
+                                xhr.send();
+                                xhr.onload=function(){
+                                    if(this.status==200 && this.responseText!='poll has been deleted')
+                                        placelist(place,this.responseText,identifier)
+                                    else place.innerHTML='<div style="text-align:center">Something went Wrong...<br>Pleace Try Again</div>'
+                                }
+                            }
+                            function placelist(place,listtext,identifier){
+                                let options=document.getElementsByClassName('personlist-option');
+                                for(let op of options) op.classList.remove('active-option');
+                                place.innerHTML='';
+                                list=JSON.parse(listtext);
+                                list=list.list;
+                                let icon;
+                                if(identifier==1){
+                                    icon="fas fa-thumbs-up";
+                                    options[0].classList.add('active-option');
+                                }else if(identifier==2){
+                                    icon="fas fa-thumbs-down";
+                                    options[1].classList.add('active-option');
+                                }else{
+                                    icon="fas fa-vote-yea";
+                                    options[2].classList.add('active-option');
+                                }
+                                for(item of list){
+                                    div=document.createElement('div');
+                                    div.classList.add('flex','width100','list-item');
+                                    div.innerHTML='<div class="width100"><img class="poll-profile cover inline-block radius50" style="width:35px;height:35px;margin-top: 5px" src="'+item.img+'">'+
+                                                '<h3 class="no inline-block horizontally-center" style="padding-left: 5px";color:#355c65>'+item.fullname+'</h3></div>'+
+                                                '<i class="'+icon+'" style="margin:auto;color:rgb(199, 163, 29);font-size:20px">';
+                                    place.appendChild(div);
+                                }
+                            }
+                            function hidepersonlist(){
+                                let list=document.getElementsByClassName('person-list')[0];
+                                list.innerHTML='';
+                                list.parentElement.parentElement.style.transform='scale(0,0)';
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin: 5px;">
+        <h3 class='no upper-padding'>Comments...</h3>
+        <div class="flex flex-start upper-padding" id='blankcomment' style="opacity: 0.5;"{% if user.id %} onmouseenter="shineandfocus(this)" onmouseleave='dimifnocomment(this)'{% else %}
+        onmouseenter="shine(this)" onmouseleave='dim(this)'{% endif %}>
+            <img class='poll-profile cover inline radius50' {% if user.profile.image %} src='{{user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+            <div class='hundrad'>
+                <div class="flex hundrad comment-background">
+                    <div class="hundrad left-padding">
+                        <h4 class="no">{{user.profile.fullname}}</h4>
+                        <textarea {% if user.id %}placeholder="Your Comment..." oninput="autohightinreament(this)" onchange="submitstartcomment(this)" {% else %}
+                         placeholder="Pleace login first..." onclick="showloginwindow()"{% endif %}
+                          rows="1" style="height: 24px;" maxlength="{{maxlength}}"></textarea>
+                        <input type="hidden" value="{{user.id}}">
+                    </div>
+                    <div class='comment-menu' style="position: relative;display:none"></div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+            <!--
+
+            {% for comment in comments %}
+            <div class="flex flex-start upper-padding" id="comment_{{comment.id}}">
+                <img class='poll-profile cover inline radius50' {% if comment.user.profile.image %} src='{{comment.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+                <div class='hundrad'>
+                    <div class="flex hundrad comment-background" onmouseenter="show(this)" onmouseleave="hide(this)">
+                        <div class="hundrad left-padding">
+                            <h4 class="no">{{comment.user.profile.fullname}}</h4>
+                            <div id="comment{{comment.id}}" class='textarea hundrad left-padding pre-wrap'>{{comment.comment}}</div>
+                            <input type="hidden" value="{{comment.user.id}}">
+                        </div>
+                        <div class='comment-menu' onmouseenter="showcommentmenu('{{comment.id}}',true,this)" style="position: relative;display:none"></div>
+                    </div>
+                    <div>
+                        {% with id=comment.id%}                
+                        {% for reply in reply_comment|item:id %}
+                        <div id='comment_{{reply.id}}' class='flex flex-start upper-low-padding hundrad'>
+                            <img class='poll-profile cover inline radius50' {% if reply.user.profile.image %} src='{{reply.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+                            <div class="flex hundrad comment-background" onmouseenter="show(this)" onmouseleave="hide(this)">
+                                <div class="hundrad left-padding">
+                                    <h4 class="no">{{reply.user.profile.fullname}}</h4>
+                                    <div id="comment{{reply.id}}" class='textarea hundrad left-padding pre-wrap'>{{reply.comment}}</div>
+                                    <input type="hidden" value="{{comment.id}}">
+                                    <input type="hidden" value="{{reply.user.id}}">
+                                </div>
+                                <div class="comment-menu" onmouseenter="showcommentmenu('{{reply.id}}',false,this)" style="position: relative;display:none"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>-->
+    </div>
+    <script>
+        const max_comment_length=Number({{maxlength}});
+        var flag_for_comment_load=false;
+        function loadContent(){
+            flag_for_comment_load=true;
+        }
+        function changeSlide(tag,n){
+            pre_v=tag.parentElement.lastElementChild.value;
+            showSlide(tag.parentElement.nextElementSibling,Number(pre_v)+n);
+        }
+        function showSlide(tag,slide_change_no){
+            let slide=tag.previousElementSibling.children;
+            
+            for(let i of slide){
+                i.style.display='none';
+                if(i.children.length==5){
+                    if(!i.firstElementChild.paused) pause(i.children[2]);
+                    i.firstElementChild.currentTime=0;
+                }
+            }
+            for(let i of tag.children) i.className=i.className.replace('activeslide','');
+            if(slide_change_no>1 && slide_change_no<(slide.length-3)){
+                let arrows=tag.previousElementSibling.children;
+                for(let i=2;i<4;i++) arrows[arrows.length-i].style.display ="inline-block";
+            }
+            else if(slide_change_no==1){//hide left arrow
+                let arrows=tag.previousElementSibling.children;
+                arrows[arrows.length-2].style.display ="inline-block";
+            }
+            else if(slide_change_no==(slide.length-3)){//hide rigth arrow
+                let arrows=tag.previousElementSibling.children;
+                arrows[arrows.length-3].style.display ="inline-block";   
+            }
+            tag.children[slide_change_no-1].classList.add('activeslide');
+            slide[slide_change_no-1].style.display='block';
+
+            tag.previousElementSibling.lastElementChild.value=slide_change_no;//stores the current slide no.
+        }
+        function collapse(tag){
+            tag=tag.parentElement.parentElement.nextElementSibling;
+            if(tag.style.maxHeight=='0px')tag.style.maxHeight=tag.scrollHeight+'px';
+            else tag.style.maxHeight='0px';
+        }
+        function select(tag){
+            if(document.getElementById(tag.classList[tag.classList.length-1]).checked){
+                document.getElementById(tag.classList[tag.classList.length-1]).checked=false;
+                document.getElementsByClassName('choice-submit')[0].disabled=true;
+            }else {
+                document.getElementById(tag.classList[tag.classList.length-1]).checked=true;
+                document.getElementsByClassName('choice-submit')[0].disabled=false;
+            }
+        }
+        function like(tag){
+            if(document.getElementById('profile-Id').value==''){
+                alert('Please login First');
+                return;
+            }
+            let form=tag.parentElement.parentElement;
+            checking_flag=tag.previousElementSibling.checked;
+            let second_Condition_flag=false;
+            for(let input of form.elements){
+                if(input.checked==true){
+                    checked_radio=input.nextElementSibling.nextElementSibling;
+                    second_Condition_flag=true;
+                }
+            }
+            if(tag.previousElementSibling.checked==true) tag.previousElementSibling.checked=false;
+            else tag.previousElementSibling.checked=true;
+            let xhr=new XMLHttpRequest();
+            xhr.open('post',form.action,true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.send('csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&like='+form.elements.namedItem('like').value);
+            xhr.onload=function(){
+                if(this.status!=200 && this.responseText!='ok'){
+                    if(tag.previousElementSibling.checked==true) tag.previousElementSibling.checked=false;
+                    else tag.previousElementSibling.checked=true;
+                    alert('something went wrong')
+                }else{
+                    if(checking_flag==true)tag.nextElementSibling.innerHTML=Number(tag.nextElementSibling.innerHTML)-1;
+                    else if(second_Condition_flag){
+                        checked_radio.innerHTML=Number(checked_radio.innerHTML)-1;
+                        tag.nextElementSibling.innerHTML=Number(tag.nextElementSibling.innerHTML)+1;
+                    }else tag.nextElementSibling.innerHTML=Number(tag.nextElementSibling.innerHTML)+1;
+                }
+            }
+        }
+        function play(tag,flag){
+            if(flag===undefined) tag.play();
+            tag=tag.nextElementSibling;
+            tag.style.display='none'
+            tag.nextElementSibling.removeAttribute('style');
+        }
+        function pause(tag,flag){
+            if(flag===undefined) tag.pause();
+            tag=tag.nextElementSibling.nextElementSibling;
+            tag.style.display='none'
+            tag.previousElementSibling.removeAttribute('style');
+        }
+        function mute(tag,flag){
+            if(flag===undefined)tag.muted=true;
+            tag=tag.nextElementSibling.nextElementSibling.nextElementSibling;
+            tag.style.display='none'
+            tag.nextElementSibling.removeAttribute('style');
+        }
+        function unmute(tag,flag){
+            if(flag===undefined)tag.muted=false;
+            tag=tag.parentElement.lastElementChild;
+            tag.style.display='none'
+            tag.previousElementSibling.removeAttribute('style');
+        }
+    </script>
+    <script src="{% static 'js/comment.js'%}" onload="loadComment()"></script>
+{% endblock %}

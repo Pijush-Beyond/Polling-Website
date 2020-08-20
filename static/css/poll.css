@@ -1,0 +1,78 @@
+.choice-image{
+    width: 45%;
+    /*height: fit-content;*/
+}
+.button{
+    font-size: larger;
+    font-weight: bolder;
+    line-height: 30px;
+    color:rgb(90, 63, 63);
+}
+.level-choice{
+    width: 95%;
+}
+.result{
+    overflow: visible;
+    height:100%;
+    background-color:rgba(36, 155, 109, 0.513);
+    position:relative;
+    left:0px;
+    top:-32px;
+    z-index:2;
+    border: 0px;
+}
+.comment-menu{
+    border-right: 4px dotted black;
+    height: 15px;
+    align-self: flex-start;
+}
+.temporary{
+    background-color: rgba(195, 195, 195, 0.602);
+    border-radius: 5px;
+    z-index: 1000;
+}
+.option{
+    margin: 0px;
+    padding: 3px 6px;
+    border-radius: inherit;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    display: block;
+}
+.option:hover{
+    background-color: rgb(172, 172, 172);
+}
+.textarea{
+    /*background-color:rgba(226, 226, 226, 0.568);*/
+    border: none;
+    color: black;
+    resize: none;
+    padding: 3px 0px;
+    border-radius: 8px;
+    width: 100%;
+}
+.left-padding{
+    padding-left: 4px;
+}
+.comment-background{
+    background-color:rgba(226, 226, 226, 0.568);
+    border-radius: 8px;
+}
+textarea{
+    border: none;
+    resize: none;
+    width: 100%;
+    font-family: 'Times New Roman';
+    /*background-color: transparent;*/
+    color: black;
+    background-color: transparent;
+    font-size: 16px;
+}
+textarea:focus{
+    border: none;
+    border-bottom: 1px solid gray;
+    outline: none;
+    background-color: transparent;
+}
+/* Hide scrollbar */

@@ -1,0 +1,17 @@
+.poll{
+    min-width: 350px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px 2px black;
+    margin: 5px;
+}
+.creator{
+    width: 100%;
+}
+img.block{
+    width: 35%;
+    border-radius: 10px;
+}
+img.poll-profile{
+    width: 30px;
+    height: 30px;
+}

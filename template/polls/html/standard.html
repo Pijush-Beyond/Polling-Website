@@ -1,0 +1,80 @@
+{% load static %}
+{% load myfilter %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' href="{% static 'css/standard.css' %}?v=">
+    {% block title %}Title{% endblock %}
+    {% block css %}Css link and Code{% endblock %}
+</head>
+<body style='margin:0;padding:0px;position:relative' class="noscrollbar" onresize="resize()" onload="resize()">
+    {% csrf_token %}
+    <header>Polling Website</header>
+    <nav class="sticky flex" style="z-index: 100000;align-items:center">
+        <div class="main-menu" style="position: relative;" onclick="showprofilenavbar(document.getElementsByClassName('profilebarcontainer')[0],this)">
+            <div class="main-menu-line"></div>
+            <div class="main-menu-line"></div>
+            <div class="main-menu-line"></div>
+            <sup class="newdot" style="position:absolute;top:0px;right:0"></sup>
+        </div>
+        <div style="width: 100%;text-align:center;height:fit-content">
+            <a href="/polls/" style="font-size: xx-large;color:rgb(17, 117, 101);font-weight:900;letter-spacing:2vw">Polling</a>
+        </div>
+    </nav>
+    <div class="flex">
+        <div class="profilebarcontainer no">
+            <div id='profilenavbar' class="noscrollbar">
+                <div class='flex' style="margin:0 0.7vw"><!-- place profile page url-->
+                    <a class="block" style="margin:0" href="/account/profile/{{user.id}}"><img class='poll-profile cover inline radius50' style="width:45px;height:45px"name='Dp' {% if user.profile.image %} src='{{user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %}></a>
+                    <div class='block width100 mainfullname'>
+                        <h3 class="no"><a class="block" href="/account/profile/{{user.id}}" name='Dp'>{{user.profile.fullname}}</a></h3>
+                        <div name='Dp'>{{user.username}}</div>
+                        <input type="hidden" id="profile-Id" value="{{user.id}}">
+                    </div>
+                </div> 
+                <hr id="notificationhr">
+                <button type="button" id="notification" onclick="showNotificationbar(document.getElementsByClassName('sidebarcontainer')[0],this)">Notification<sup class="newdot"></sup></button>
+                <hr>
+                <a class='flex menu' href=''><!--place poll posted url-->
+                    <h4 class="block no">Followers</h4>
+                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                </a>
+                <a class='flex menu' href=''><!--place poll posted url-->
+                    <h4 class="block no">Following</h4>
+                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                </a>
+                <hr>
+                <a class='flex menu' href=''><!--place poll posted url-->
+                    <h4 class="block no">Posts</h4>
+                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                </a>
+                <a class='flex menu' href=''><!--place poll posted url-->
+                    <h4 class="block no">Polls</h4>
+                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                </a>
+                <a class='flex menu' href=''><!--place poll posted url-->
+                    <h4 class="block no">Drafts</h4>
+                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                </a>
+                <hr>
+                {% if user.id %}
+                <button type="button" id="login" onclick="login()">Logout</button>
+                {% else %}
+                <a id="login" href="{% url 'account:login'%}">Login</a>
+                {% endif%}
+            </div>
+        </div>
+        <div class='main noscrollbar' onload="loadContent()">
+            {% block main %}{% endblock%}
+        </div>
+        <div class="sidebarcontainer no">
+            <div id="sidebar" class="noscrollbar">Not Decided</div>
+        </div>
+    </div>
+</body>
+<script src='https://kit.fontawesome.com/a076d05399.js'></script>
+<script src="{% static 'js/snap_profile.js'%}"></script>
+<script src="{% static 'js/common_animations.js'%}?v="></script>
+</html>

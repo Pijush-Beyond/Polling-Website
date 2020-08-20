@@ -1,0 +1,33 @@
+{% extends "polls/html/standard.html" %}
+{% load static %}
+
+{% block title %}
+<title>Polls</title>
+{% endblock %}
+
+{% block css%}
+<link rel='stylesheet' type="text/css" href="{% static 'css/polls.css'%}">
+{% endblock %}
+
+{% block main %}
+{% for p in polls %}
+<div class="poll" {% if p in voted %} style="background-color:rgb(0, 255, 106)" {% endif %}>
+    <div class='creator block'>
+        <img class='inline radius50 hidden-overflow cover poll-profile' {% if p.user.profile.image %} src='{{p.user.profile.image.url}}' {% else %} src="{% static 'image/profile.jpg' %}"{% endif %} >
+        <div class='inline-block horizontally-center'>{{p.user.profile.fullname}}</div>
+    </div>
+    <a class='width flex row' {% if p in voted %} href="{% url 'polls:result' p.id%}" {% else %} href="{% url 'polls:poll' p.id%}" {% endif %}>
+        <div class='flex column'>
+            <h2>{{p.headline}}</h2>
+            <h4>
+                Total Votes:{{p.total_votes}} & 
+                Total Comments{{p.total_comments}}
+            </h4>
+        </div>
+        {% if p.image %}
+        <img class='block' src='{{p.image.url}}'>
+        {% endif %}
+    </a>
+</div> 
+{% endfor %}
+{% endblock %}

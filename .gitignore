@@ -1,0 +1,8 @@
+*.sqlite3
+/manage.py
+try/
+admin/
+image/
+__pycache__/
+migrations/
+media/
