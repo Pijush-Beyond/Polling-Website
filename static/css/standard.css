@@ -585,6 +585,14 @@ nav{
     width: 25%;
     min-height: 260px;
 }
+.backarrow{
+    font-size: 2vw;
+    color: gray;
+    display:none;
+}
+.backarrow:active{
+    color:gainsboro;
+}
 @media screen and (max-width:1000px){
     .sidebarcontainer{
         width: 0;
@@ -624,6 +632,9 @@ nav{
         width:100%;
     }
     .main-menu{
+        display: initial;
+    }
+    .backarrow{
         display: initial;
     }
 }

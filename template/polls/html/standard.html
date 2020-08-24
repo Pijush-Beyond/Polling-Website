@@ -5,11 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' type='text/css' href="{% static 'css/standard.css' %}?v=">
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+    <link rel='stylesheet' type='text/css' href="{% static 'css/standard.css' %}">
     {% block title %}Title{% endblock %}
     {% block css %}Css link and Code{% endblock %}
 </head>
-<body style='margin:0;padding:0px;position:relative' class="noscrollbar" onresize="resize()" onload="resize()">
+<body style='margin:0;padding:0px;position:relative' class="noscrollbar" onresize="resize()" onload="resize()" onscroll="resizemenu_side()">
     {% csrf_token %}
     <header>Polling Website</header>
     <nav class="sticky flex" style="z-index: 100000;align-items:center">
@@ -67,14 +68,21 @@
             </div>
         </div>
         <div class='main noscrollbar' onload="loadContent()">
-            {% block main %}{% endblock%}
+            <div div="maincontainer noscrollbar">
+                {% block main %}{% endblock%}
+            </div>
         </div>
         <div class="sidebarcontainer no">
-            <div id="sidebar" class="noscrollbar">Not Decided</div>
+            <div id="sidebar" class="noscrollbar">
+                <div class='flex'>
+                    <i class="backarrow fas" onclick="backtoprofilbar()">&#xf060;</i>
+                    <h3 class='no width100'>Notication</h3>
+                    <h3 class='no' title="10">10</h3><!--pass the number through shortnumber filter-->
+                </div>
+            </div>
         </div>
     </div>
 </body>
-<script src='https://kit.fontawesome.com/a076d05399.js'></script>
 <script src="{% static 'js/snap_profile.js'%}"></script>
 <script src="{% static 'js/common_animations.js'%}?v="></script>
 </html>

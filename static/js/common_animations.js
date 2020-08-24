@@ -61,25 +61,35 @@ function showNotificationbar(sidebar,notificationbutton){
 }
 function resize(){
     let profile=document.getElementsByClassName('profilebarcontainer')[0];
-    profile.style.height=window.innerHeight-document.getElementsByTagName('nav')[0].scrollHeight+'px';
+    profile.style.height=window.innerHeight-document.getElementsByTagName('nav')[0].scrollHeight-(window.pageYOffset<=22?(22-window.pageYOffset):0)+'px';
     let sidebar=document.getElementsByClassName('sidebarcontainer')[0];
-    sidebar.style.height=document.getElementsByClassName('profilebarcontainer')[0].style.height;
+    sidebar.style.height=profile.style.height;
     profile.style.top=document.getElementsByTagName('nav')[0].scrollHeight+'px';
     sidebar.style.top=document.getElementsByTagName('nav')[0].scrollHeight+'px';
     document.getElementById('profilenavbar').style.height=profile.offsetHeight-12+'px';
     document.getElementById('sidebar').style.height=profile.offsetHeight-12+'px';
     if(window.innerWidth>1000){
-        if(document.getElementById('notification').classList.contains('greenbutton')){
-            let tag=document.getElementsByClassName('profilebarcontainer')[0];
-            let stringtoreplace=tag.getAttribute('style').replace(/width:\s*50%;/i,'');
+        let tag=document.getElementsByClassName('profilebarcontainer')[0];
+        if(tag.getAttribute('style')){
+            let stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');//50
             tag.setAttribute('style',stringtoreplace);
-            tag=document.getElementsByClassName('main')[0];
-            stringtoreplace=tag.getAttribute('style').replace(/width:\s*0px;/i,'');
+        }
+        tag=document.getElementsByClassName('main')[0];
+        if(tag.getAttribute('style')){
+            stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');
             tag.setAttribute('style',stringtoreplace);
-            tag=document.getElementsByClassName('sidebarcontainer')[0];
-            stringtoreplace=tag.getAttribute('style').replace(/width:\s*50%;/i,'');
+        }
+        tag=document.getElementsByClassName('sidebarcontainer')[0];
+        if(tag.getAttribute('style')){
+            stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');
             tag.setAttribute('style',stringtoreplace);
-            document.getElementById('notification').classList.remove('greenbutton');
+        }
+        document.getElementById('notification').classList.remove('greenbutton');
+        //for make lined menu bar in previous state
+        let menu=document.getElementsByClassName('main-menu')[0];
+        for(let line of menu.children){
+            if(line.tagName.toLowerCase()=='sup')break;
+            line.removeAttribute('style');
         }
     }else if(window.innerWidth>700){
         for(let line of document.getElementsByClassName('main-menu-line')){
@@ -87,14 +97,14 @@ function resize(){
             line.removeAttribute('style');
         }
         let tag=document.getElementsByClassName('profilebarcontainer')[0];
-        let stringtoreplace=tag.getAttribute('style').replace(/width:\s*(0px|100%);/i,'');
+        let stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');
         tag.setAttribute('style',stringtoreplace);
         if( document.getElementById('notification').classList.contains('greenbutton')){
             document.getElementsByClassName('sidebarcontainer')[0].style.width='50%';
             tag.style.width="50%";
         }else{
             tag=document.getElementsByClassName('main')[0];
-            stringtoreplace=tag.getAttribute('style').replace(/width:\s*0px;/i,'');
+            stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');
             tag.setAttribute('style',stringtoreplace);
         }
     }else if(window.innerWidth<=700){
@@ -110,4 +120,19 @@ function resize(){
             document.getElementsByClassName('profilebarcontainer')[0].style.width='0';
         }
     }
+}
+function resizemenu_side(){
+    let profile=document.getElementsByClassName('profilebarcontainer')[0];
+    profile.style.height=window.innerHeight-document.getElementsByTagName('nav')[0].scrollHeight-(window.pageYOffset<=22?(22-window.pageYOffset):0)+'px';
+    document.getElementById('profilenavbar').style.height=profile.offsetHeight-12+'px';
+    let sidebar=document.getElementsByClassName('sidebarcontainer')[0];
+    sidebar.style.height=profile.style.height;
+    document.getElementById('sidebar').style.height=profile.offsetHeight-12+'px';
+}
+function backtoprofilbar(){
+    document.getElementById('notification').classList.remove('greenbutton');
+    let sidebar=document.getElementsByClassName('sidebarcontainer')[0];
+    let stringtoreplace=sidebar.getAttribute('style').replace(/width:\s*100%;/i,'');
+    sidebar.setAttribute('style',stringtoreplace);
+    document.getElementsByClassName('profilebarcontainer')[0].style.width='100%';
 }
