@@ -24,6 +24,7 @@ header{
     background-color: rgb(31, 123, 126);
 }
 .sticky{/*used*/
+    position:-webkit-sticky;
     position: sticky;
     top:0px;
 }
@@ -553,10 +554,15 @@ nav{
 /*put different css file*/
 .main{
     width: 50%;
+    transition: width 0.5s;
+    overflow: hidden;
+}
+.maincontainer{
     overflow-x: auto;
     overflow-y: auto;
-    margin: 6px 0.4vw;
-    transition-property: width 1s;
+    padding: 0 0.4vw;
+    margin: 6px 0;
+    transition: width 0.5s;
 }
 #notificationhr,#notification{
     display: none;
@@ -579,6 +585,7 @@ nav{
     overflow: auto;
 }
 .sidebarcontainer,.profilebarcontainer{
+    position: -webkit-sticky;
     position: sticky;
     overflow: hidden;
     transition: width 0.5s;
