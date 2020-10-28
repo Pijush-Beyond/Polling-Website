@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'polls',
     'account',
-    'try',
+    #'try',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -78,9 +78,9 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mysite_second',
-        'USER': 'postgres',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mysite',
+        'USER': 'root',
         'HOST': 'localhost',
         'PASSWORD': 'Pijush@1998'
     }

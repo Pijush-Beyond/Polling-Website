@@ -6,3 +6,4 @@ image/
 __pycache__/
 migrations/
 media/
+Mysite.session.sql

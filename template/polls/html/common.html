@@ -7,18 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
     <link rel='stylesheet' type='text/css' href="{% static 'css/standard.css' %}">
-    {% block title %}Title{% endblock %}
-    {% block css %}Css link and Code{% endblock %}
+    <link rel='stylesheet' type='text/css' href="{% static 'css/poll.css'%}">
+    <script id="common_animation-js"src="{% static 'js/common_animations.js'%}?v="></script>
+    <script id="snap_profile-js" src="{% static 'js/snap_profile.js'%}"></script>
+    <script id="comment-js" src="{% static 'js/comment.js'%}"></script>
+    <script id="notification-js" src="{% static 'js/notification.js'%}?v=123"></script>
+    <script id='main_post-js' src="{% static 'js/main-post.js'%}"></script>
+    <title>{{title}}</title>
 </head>
-<body style='margin:0;padding:0px;position:relative' class="noscrollbar" onresize="resize()" onload="resize()" onscroll="resizemenu_side()">
+<body style='margin:0;padding:0px;position:relative' class="noscrollbar" onresize="resize()" onscroll="resizemenu_side()">
     {% csrf_token %}
-    <header>Polling Website</header>
+    <a href="/polls/" class="block" onclick="showdetails()"><header>Polling Website</header></a>
     <nav class="sticky flex" style="z-index: 100000;align-items:center">
         <div class="main-menu" style="position: relative;" onclick="showprofilenavbar(document.getElementsByClassName('profilebarcontainer')[0],this)">
             <div class="main-menu-line"></div>
             <div class="main-menu-line"></div>
             <div class="main-menu-line"></div>
-            <sup class="newdot" style="position:absolute;top:0px;right:0"></sup>
+            <sup class="notificationdot hide" style="position:absolute;top:0px;right:0"></sup>
         </div>
         <div style="width: 100%;text-align:center;height:fit-content">
             <a href="/polls/" style="font-size: xx-large;color:rgb(17, 117, 101);font-weight:900;letter-spacing:2vw">Polling</a>
@@ -36,11 +41,11 @@
                     </div>
                 </div> 
                 <hr id="notificationhr">
-                <button type="button" id="notification" onclick="showNotificationbar(document.getElementsByClassName('sidebarcontainer')[0],this)">Notification<sup class="newdot"></sup></button>
+                <button type="button" id="notification" onclick="showNotificationbar(document.getElementsByClassName('sidebarcontainer')[0],this)">Notification<sup class="notificationdot hide"></sup></button>
                 <hr>
                 <a class='flex menu' href=''><!--place poll posted url-->
                     <h4 class="block no">Followers</h4>
-                    <h4 class="block no">{{user.profile.total_poll_posted}}</h4>
+                    <h4 class="block no" id="follower-count">{{user.profile.total_poll_posted}}</h4>
                 </a>
                 <a class='flex menu' href=''><!--place poll posted url-->
                     <h4 class="block no">Following</h4>
@@ -68,8 +73,9 @@
             </div>
         </div>
         <div class='main noscrollbar' onload="loadContent()">
+            <div id="add-post">
+            </div>
             <div class="maincontainer noscrollbar">
-                {% block main %}{% endblock%}
             </div>
         </div>
         <div class="sidebarcontainer no">
@@ -77,12 +83,14 @@
                 <div class='flex'>
                     <i class="backarrow fas" onclick="backtoprofilbar()">&#xf060;</i>
                     <h3 class='no width100'>Notication</h3>
-                    <h3 class='no' title="10">10</h3><!--pass the number through shortnumber filter-->
+                    <input type="hidden" id="total-notifications"value="">
                 </div>
+                <div id='notifications'></div>
             </div>
         </div>
     </div>
+    <script>
+        const max_comment_length=Number({{maxlength}});
+    </script>
 </body>
-<script src="{% static 'js/snap_profile.js'%}"></script>
-<script src="{% static 'js/common_animations.js'%}"></script>
 </html>

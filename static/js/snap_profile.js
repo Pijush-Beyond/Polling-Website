@@ -17,7 +17,7 @@ function get_snap_profile(tag){
                                 '<h3 calss="no width100"><a href="/account/profile/'+jesondata.id+'/" style="color:gray">'+jesondata.fullname+'</a></h3>'+
                                 '<input type="hidden" value="'+jesondata.id+'">'+
                             '</div>'+
-                            (document.getElementById('profile-Id').value !== String(jesondata.id)?('<i class="fas" onclick="'+(jesondata.following ?'unfollow(this)">&#xf00c;':'follow(this)">&#xf067;')+'</i>'):'')+
+                            (document.getElementById('profile-Id').value !== String(jesondata.id)?('<i class="fas" onclick="followunfollow(this,'+(jesondata.following ?'false)">&#xf00c;':'true)">&#xf067;')+'</i>'):'')+
                             //(document.getElementById('profile-Id').value !== String(jesondata.id)?('<i class="fas fa-'+(jesondata.following ?'check" onclick="unfollow(this)"':'plus" onclick="follow(this)"')+'></i>'):'')+
                             '<div class="flex width100">'+
                                 '<h4 class="inline-block no">Total Post</h4>'+
@@ -53,45 +53,30 @@ function unfollow_warning(tag){
                                 '</div>';
     tag.parentElement.appendChild(warning_container);
 }
-function follow(tag){
+function followunfollow(tag,flag){
+    let icon=tag.innerHTML;
     tag.innerHTML='<i class="fas fa-spinner fa-pulse" style="margin:auto;background-color:transparent;"></i>';
+    let action=tag.getAttribute('onclick')
     tag.removeAttribute('onclick');
     let xhr =new  XMLHttpRequest();
-    xhr.open('post','/account/follow/',true);
+    xhr.open('post','/account/followunfollow/',true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.send('csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&follower='+document.getElementById('profile-Id').value+'&inspiration='+tag.previousElementSibling.lastElementChild.value);
+    xhr.send('csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&follower='+document.getElementById('profile-Id').value+'&inspiration='+tag.previousElementSibling.lastElementChild.value+'&message='+(flag?'follow':'unfollow'));
     xhr.onload=function(){
-        if(this.status==200 && this.responseText!='something wrong'){
-            tag.innerHTML="&#xf00c;";
-            tag.setAttribute('onclick','unfollow(this)');
+        if(this.status==200 && (this.responseText=='following' || this.responseText=='unfollow')){
+            if(this.responseText=='following'){
+                tag.innerHTML="&#xf00c;";
+                tag.setAttribute('onclick','followunfollow(this,false)');
+            }else{
+                tag.innerHTML="&#xf067;";
+                tag.setAttribute('onclick','followunfollow(this,true)');
+            }
             //tag.classList.add('fa-plus');
         }
         else{
-            tag.innerHTML="&#xf067;";
-            tag.setAttribute('onclick','follow(this)');
+            tag.innerHTML=icon;
+            tag.setAttribute('onclick',action);
             //tag.classList.add('fa-check');
-        }
-    }
-}
-function unfollow(tag){
-    //tag.parentElement.parentElement.parentElement.parentElement.children[1];//thi is important
-    //tag.classList.remove('fa-plus');
-    tag.innerHTML='<i class="fas fa-spinner fa-pulse" style="margin:auto;background-color:transparent"></i>';
-    tag.removeAttribute('onclick');
-    let xhr =new  XMLHttpRequest();
-    xhr.open('post','/account/unfollow/',true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.send('csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&follower='+document.getElementById('profile-Id').value+'&inspiration='+tag.previousElementSibling.lastElementChild.value);
-    xhr.onload=function(){
-        if(this.status==200 && this.responseText!='something wrong'){
-            tag.innerHTML="&#xf067;";
-            tag.setAttribute('onclick','follow(this)');
-            //tag.classList.add('fa-check');
-        }
-        else{
-            tag.innerHTML='&#xf00c;';
-            tag.setAttribute('onclick','unfollow(this)');
-            //tag.classList.add('fa-plus');
         }
     }
 }

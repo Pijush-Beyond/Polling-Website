@@ -7,5 +7,5 @@ urlpatterns = [
     path('',include('polls.urls')),
     path('account/',include('account.urls')),
     path('admin/', admin.site.urls),
-    path('try/',include('try.urls'))
+    #path('try/',include('try.urls'))
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

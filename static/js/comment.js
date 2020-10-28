@@ -160,14 +160,17 @@ function editedsubmit(tag,flag,parent,waiting){
         setTimeout(submitstartcomment,500,tag,flag,parent,waiting);
         return;
     }
-    clearTimeout(update);
+    try{
+        clearTimeout(update);
+    }catch(error){
+    }
 
-    let xlr=new XMLHttpRequest();
-    xlr.open('post','/polls/modifycomment',true);
-    xlr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let xhr=new XMLHttpRequest();
+    xhr.open('post','/polls/modifycomment',true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let data='csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&comment_id='+tag.id.slice(7)+'&comment='+tag.value+"&poll="+document.getElementById('poll_id').value;
-    xlr.send(data);
-    xlr.onload=function(){
+    xhr.send(data);
+    xhr.onload=function(){
         if(this.status==200){
             if(this.responseText!='something wrong'){
                 waiting.parentElement.replaceChild(parent,waiting);
@@ -175,16 +178,16 @@ function editedsubmit(tag,flag,parent,waiting){
                 tag.remove();
                 div.removeAttribute('style');
                 if(div.previousElementSibling.children.length!=3 && this.responseText!='not changed'){
-                    div.previousElementSibling.innerHTML=div.previousElementSibling.innerHTML+'<span class="flag-block"><div class="dot inline-block"></div>edited<span>';
+                    div.previousElementSibling.innerHTML=div.previousElementSibling.innerHTML+'<span class="flag-block"><div class="notificationdot inline-block"></div>edited<span>';
                     editedcomment_list.push(Number(tag.id.split('_')[1]));
                 }
-                update=setTimeout(continusresponse,2000,flag_endtime);
+                update=setTimeout(continusresponse,2000,lastcommentloadtime);
             }
             else{
                 if(flag)waiting.parentElement.parentElement.remove();
                 else waiting.parentElement.remove();
                 alert('Comment is Deleted which you are trying to reply...');
-                update=setTimeout(continusresponse,2000,flag_endtime);
+                update=setTimeout(continusresponse,2000,lastcommentloadtime);
             }
         }
         else{
@@ -213,12 +216,12 @@ function del(id,menu,flag){
     waiting.innerText='Sending....'
     comment.parentElement.replaceChild(waiting,comment);
 
-    let xlr=new XMLHttpRequest();
-    xlr.open('post','/polls/modifycomment',true);
-    xlr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let xhr=new XMLHttpRequest();
+    xhr.open('post','/polls/modifycomment',true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let data='csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&delete='+id.slice(8)+"&poll="+document.getElementById('poll_id').value;
-    xlr.send(data);
-    xlr.onload=function(){
+    xhr.send(data);
+    xhr.onload=function(){
         if(this.status==200){
             if(this.responseText!='something wrong'){
                 waiting.remove();
@@ -319,17 +322,20 @@ function submit(tag,parent,waiting){
         setTimeout(submitstartcomment,500,tag,parent,waiting);
         return;
     }
-    clearTimeout(update);
+    try{
+        clearTimeout(update);
+    }catch(error){
+    }
     tag.parentElement.parentElement.setAttribute('onmouseenter',"show(this)");
     tag.parentElement.parentElement.setAttribute('onmouseleave','hide(this)')
 
-    let xlr=new XMLHttpRequest();
-    xlr.open('post','/polls/modifycomment',true);
-    xlr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    let xhr=new XMLHttpRequest();
+    xhr.open('post','/polls/modifycomment',true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     let data='csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&comment='
             +tag.value+'&poll='+document.getElementById('poll_id').value+'&reply_of='+tag.nextElementSibling.value;
-    xlr.send(data);
-    xlr.onload=function(){
+    xhr.send(data);
+    xhr.onload=function(){
         if(this.status==200){
             if(this.responseText!='something wrong'){
                 let id=this.responseText;
@@ -341,7 +347,7 @@ function submit(tag,parent,waiting){
                 div.innerText=tag.value;
                 div.id=tag.id+id;
                 tag.parentElement.replaceChild(div,tag);
-                div.previousElementSibling.innerHTML=div.previousElementSibling.innerHTML+'<span class="flag-block"><div class="dot inline-block"></div>just now</span>';
+                div.previousElementSibling.innerHTML=div.previousElementSibling.innerHTML+'<span class="flag-block"><div class="notificationdot inline-block"></div>just now</span>';
                 parent.id+=id;
                 let newmenu=document.createElement('div');//three dotted menu =newmenu
                 newmenu.classList.add('comment-menu');
@@ -354,7 +360,7 @@ function submit(tag,parent,waiting){
 
                 tag_count=document.getElementById('comment-count');
                 tag_count.innerText=Number(tag_count.innerText)+1;
-                update=setTimeout(continusresponse,2000,flag_endtime);//calling continueresponse with fla_endtime
+                update=setTimeout(continusresponse,2000,lastcommentloadtime);//calling continueresponse with fla_endtime
             }
             else{
                 waiting.remove();
@@ -430,19 +436,23 @@ function submitstartcomment(tag,parent,waiting){
         }
         //console.log('this before return');
         if(!flag_for_other_request){
-            //setTimeout(submitstartcomment,500,tag,parent,waiting);
-            console.log('this is in return');
+            setTimeout(submitstartcomment,500,tag,parent,waiting);
+            //console.log('this is in return');
             return;
         }
         //console.log('this is after return');
-        clearTimeout(update);
+        try{
+            clearTimeout(update);
+        }catch(error){
 
-        let xlr=new XMLHttpRequest();
-        xlr.open('post','/polls/modifycomment',true);
-        xlr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        }
+
+        let xhr=new XMLHttpRequest();
+        xhr.open('post','/polls/modifycomment',true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         let data='csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value+'&comment='+tag.value.trimRight()+'&poll='+document.getElementById('poll_id').value;
-        xlr.send(data);
-        xlr.onload=function(){
+        xhr.send(data);
+        xhr.onload=function(){
             waiting.parentElement.replaceChild(parent,waiting);
             if(this.status==200){
                 let id=this.responseText;//most important part of the funtion
@@ -466,8 +476,8 @@ function submitstartcomment(tag,parent,waiting){
                 //a.classList.add('snap_profile');
                 a.innerHTML='<img class="poll-profile cover inline radius50" src="'+document.getElementsByName('Dp')[0].src+'">';
                 image.parentElement.replaceChild(a,image);
-                divcomment.previousElementSibling.innerHTML='<a href="/account/profile/'+document.getElementById('profile-Id').value+'/" class="snap_profile" onmouseenter="get_snap_profile(this)">'+document.getElementsByName('Dp')[1].innerText+'</a><span class="flag-block"><div class="dot inline-block"></div>just now</span>';
-                //divcomment.previousElementSibling.innerHTML=divcomment.previousElementSibling.innerHTML+'<span class="flag-block"><div class="dot inline-block"></div>just now</span>';
+                divcomment.previousElementSibling.innerHTML='<a href="/account/profile/'+document.getElementById('profile-Id').value+'/" class="snap_profile" onmouseenter="get_snap_profile(this)">'+document.getElementsByName('Dp')[1].innerText+'</a><span class="flag-block"><div class="notificationdot inline-block"></div>just now</span>';
+                //divcomment.previousElementSibling.innerHTML=divcomment.previousElementSibling.innerHTML+'<span class="flag-block"><div class="notificationdot inline-block"></div>just now</span>';
                 justdiv.parentElement.setAttribute('onmouseenter','show(this)');
                 justdiv.parentElement.setAttribute('onmouseleave','hide(this)');
                 comment.lastElementChild.firstElementChild.lastElementChild.setAttribute('onmouseenter',"showcommentmenu('"+id+"',true,this)");
@@ -479,7 +489,7 @@ function submitstartcomment(tag,parent,waiting){
                 tag.style.borderColor='gray';
                 tag_count=document.getElementById('comment-count');
                 tag_count.innerText=Number(tag_count.innerText)+1;
-                update=setTimeout(continusresponse,2000,flag_endtime)//calling continueresponse with settime and passing flag_endtime
+                update=setTimeout(continusresponse,2000,lastcommentloadtime)//calling continueresponse with settime and passing lastcommentloadtime
             }
             else{
                 alert('Somwthing Went Wrong...\nPleace Try again...')
@@ -492,21 +502,24 @@ function submitstartcomment(tag,parent,waiting){
 
 //for comment load
 function loadComment(){
+    flag_for_other_request=false;
     let loading=document.createElement('div')
     loading.setAttribute('class','center-text-align');
     loading.innerText='Loading.....';
     document.getElementById('blankcomment').parentElement.appendChild(loading);
-    let xlr=new XMLHttpRequest();
-    xlr.open('get','/polls/sendcomment/?poll='+document.getElementById('poll_id').value,true);
-    xlr.send();
-    xlr.onload=function(){
+    let xhr=new XMLHttpRequest();
+    xhr.open('get','/polls/sendcomment/?poll='+document.getElementById('poll_id').value,true);
+    xhr.send();
+    xhr.onload=function(){
         if(this.status==200 && this.responseText!='Poll has been deleted'){
             let jsondata=JSON.parse(this.responseText);
             //var endtime=jsondata.endtime;
             //console.log('Ending TimeRecive:=',jsondata.endtime)
             putComment(jsondata.comments,loading);
-            flag_endtime=jsondata.endtime;
-            //update=setTimeout(continusresponse,100,flag_endtime);
+            flag_for_other_request=true;
+            lastcommentloadtime=jsondata.endtime;
+            //update=setTimeout(continusresponse,3000,jsondata.endtime);
+            //setTimeout(updateNotifications,15000,jsondata.endtime)
         }
         else{
             loading.remove();
@@ -533,8 +546,8 @@ function putComment(jsondata,loading){
         maincomment.setAttribute('onmouseenter','show(this)');//for three dotted menu show and
         maincomment.setAttribute('onmouseleave','hide(this)');//for hide
         maincomment.firstElementChild.firstElementChild.innerHTML='<a class="snap_profile" href="/account/profile/'+commentdata.userid+'/" onmouseenter="get_snap_profile(this)">'+commentdata.user+'</a>'+
-                                                                    '<span class="flag-block"><div class="dot inline-block"></div>'+commentdata.c_time+'</span>'+(commentdata.edited?
-                                                                    '<span class="flag-block"><div class="dot inline-block"></div>edited<span>':'');//for user name
+                                                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>'+commentdata.c_time+'</span>'+(commentdata.edited?
+                                                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>edited<span>':'');//for user name
         //div tag for comment
         let divcomment=document.createElement('div');
         divcomment.id='comment'+commentdata.id;
@@ -559,7 +572,7 @@ function placeReplyComment(tag,commentdata,id){
                             "<div class='hundrad left-padding'>"+
                                 '<h4 class="no">'+
                                     '<a class="snap_profile" href="account/profile/'+replys.userid+'/" onmouseenter="get_snap_profile(this)">'+replys.user+'</a>'+
-                                    '<span class="flag-block"><div class="dot inline-block"></div>'+replys.c_time+'</span>'+(replys.edited?'<span class="flag-block"><div class="dot inline-block"></div>edited<span>':'')+
+                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>'+replys.c_time+'</span>'+(replys.edited?'<span class="flag-block"><div class="notificationdot inline-block"></div>edited<span>':'')+
                                 '</h4>'+
                                 '<div id="comment'+replys.id+'" class="textarea hundrad left-padding pre-wrap">'+replys.comment+'</div>'+
                                 '<input type="hidden" value="'+id+'">'+
@@ -574,15 +587,14 @@ function placeReplyComment(tag,commentdata,id){
 //continue response
 function continusresponse(endtime){
     flag_for_other_request=false;//flag indicating to not allow other request 
-    let xlr=new XMLHttpRequest();
+    let xhr=new XMLHttpRequest();
     let data='/polls/update/?poll='+document.getElementById('poll_id').value+'&endtime='+endtime+'&newcomments=['+newcomment_list+']&newreplys=['+newreplycomment_list+']&editedcomments=['+editedcomment_list+']';
     newcomment_list=[];
     newreplycomment_list=[];
     editedcomment_list=[];
-    //console.log('this is in continueresponse');
-    xlr.open('get',data,true);
-    xlr.send();
-    xlr.onload=function(){
+    xhr.open('get',data,true);
+    xhr.send();
+    xhr.onload=function(){
         if(this.status==200){
             if(this.responseText!='poll is deleted'){
                 jsonresponse=JSON.parse(this.responseText);
@@ -592,8 +604,10 @@ function continusresponse(endtime){
                 deletecomment(jsonresponse.commentlist);
                 document.getElementById('vote-count').innerHTML=jsonresponse.vote;
                 document.getElementById('comment-count').innerHTML=jsonresponse.comment;
-                flag_for_other_request=true;//flag indicating to allow other request
-                flag_endtime=jsonresponse.endtime;
+                document.getElementById('like-count').innerHTML=jsonresponse.like;
+                document.getElementById('dislike-count').innerHTML=jsonresponse.dislike;
+                flag_for_other_request=true;
+                lastcommentloadtime=jsonresponse.endtime;
                 update=setTimeout(continusresponse,3000,jsonresponse.endtime);
             }
             else{
@@ -623,8 +637,8 @@ function newcomment(comments){
         maincomment.setAttribute('onmouseenter','show(this)');//for three dotted menu show and
         maincomment.setAttribute('onmouseleave','hide(this)');//for hide
         maincomment.firstElementChild.firstElementChild.innerHTML='<a class="snap_profile" href="/account/profile/'+commentdata.userid+'/" onmouseenter="get_snap_profile(this)">'+commentdata.user+'</a>'+
-                                                                    '<span class="flag-block"><div class="dot inline-block"></div>'+commentdata.c_time+'</span>'+(commentdata.edited?
-                                                                    '<span class="flag-block"><div class="dot inline-block"></div>edited<span>':'');//for user name
+                                                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>'+commentdata.c_time+'</span>'+(commentdata.edited?
+                                                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>edited<span>':'');//for user name
         //div tag for comment
         let divcomment=document.createElement('div');
         divcomment.id='comment'+commentdata.id;
@@ -651,7 +665,7 @@ function replycomment(comments){
                             "<div class='hundrad left-padding'>"+
                                 '<h4 class="no">'+
                                     +'<a class="snap_profile" href="account/profile/'+commentdata.userid+'/" onmouseenter="get_snap_profile(this)">'+replys.user+'</a>'+
-                                    '<span class="flag-block"><div class="dot inline-block"></div>'+replys.c_time+'</span>'+(replys.edited?'<span class="flag-block"><div class="dot inline-block"></div>edited<span>':'')+
+                                    '<span class="flag-block"><div class="notificationdot inline-block"></div>'+replys.c_time+'</span>'+(replys.edited?'<span class="flag-block"><div class="notificationdot inline-block"></div>edited<span>':'')+
                                 '</h4>'+
                                 '<div id="comment'+replys.id+'" class="textarea hundrad left-padding pre-wrap">'+replys.comment+'</div>'+
                                 '<input type="hidden" value="'+reply_of+'">'+
@@ -692,7 +706,7 @@ function editedcomment(editedcomments){
         if(div.previousElementSibling.children.length==2){
             editedtag=document.createElement('span');
             editedtag.classList.add('flag-block');
-            editedtag.innerHTML='<div class="dot inline-block"></div>edited';
+            editedtag.innerHTML='<div class="notificationdot inline-block"></div>edited';
             div.previousElementSibling.appendChild(editedtag);
         }
     }
@@ -730,4 +744,4 @@ document.onkeydown = function(e){
         let dot=document.getElementsByClassName('activeslide')[0].previousElementSibling;
         if(dot) dot.click();
     }
-};
+}

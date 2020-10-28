@@ -9,7 +9,7 @@ class Polls(models.Model):
     editing_time=models.DateTimeField(auto_now=True)
     like=models.ManyToManyField(User,through='Likes')
     show_collapsed=models.BooleanField(default=False)
-
+    #publish_result=models.BooleanField(default=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     @property
     def total_comment(self):
@@ -41,8 +41,8 @@ class Polls(models.Model):
 
 class Choices(models.Model):
     title=models.CharField(max_length=50)
-    description=models.TextField(max_length=1000,blank=True)
-    image=models.ImageField(blank=True)
+    description=models.TextField(max_length=1000,blank=True,null=True)
+    image=models.ImageField(blank=True,null=True)
 
     poll=models.ForeignKey(Polls,on_delete=models.CASCADE)
 

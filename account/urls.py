@@ -9,6 +9,7 @@ urlpatterns = [
     path('login/',views.login,name='login'),
     path('profile/<int:user_id>/',views.profile,name='profile'),
     path('snap_profile/<int:user_id>/',views.snap_profile,name='snap_profile'),
-    path('follow/',views.follow,name='follow'),
-    path('unfollow/',views.unfollow,name='unfollow'),
+    path('followunfollow/',views.followunfollow,name='followUnfollow'),
+    path('updatenotifications/<int:user_id>/',views.updatenotifications,name='updatenotifications'),
+    path('loadnotifications/<int:user_id>/',views.loadnotifications,name='loadnotifications')
 ]

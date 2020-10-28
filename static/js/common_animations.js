@@ -1,3 +1,4 @@
+var lastcommentloadtime;
 function showprofilenavbar(profilebarcontainer,menu){
     let stringtoreplace;
     if(menu.firstElementChild.getAttribute('style')){
@@ -49,6 +50,7 @@ function showNotificationbar(sidebar,notificationbutton){
             tag.setAttribute('style',stringtoreplace);
         }
     }else{
+        for(let i of document.getElementsByClassName('notificationdot'))i.classList.add('hide');
         notificationbutton.classList.add('greenbutton');
         if(window.innerWidth<=700){
             sidebar.style.width='100%';
@@ -73,6 +75,7 @@ function resize(){
     document.getElementById('profilenavbar').style.height=profile.offsetHeight-12+'px';
     document.getElementById('sidebar').style.height=profile.offsetHeight-12+'px';
     if(window.innerWidth>1000){
+        for(let i of document.getElementsByClassName('notificationdot'))i.classList.add('hide');
         let tag=document.getElementsByClassName('profilebarcontainer')[0];
         if(tag.getAttribute('style')){
             let stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');//50
@@ -95,7 +98,6 @@ function resize(){
             if(line.tagName.toLowerCase()=='sup')break;
             line.removeAttribute('style');
         }
-        console.log(window.innerWidth);
         document.getElementsByClassName('maincontainer')[0].style.width=(window.innerWidth*50)/100+'px';
     }else if(window.innerWidth>700){
         for(let line of document.getElementsByClassName('main-menu-line')){
@@ -106,6 +108,7 @@ function resize(){
         let stringtoreplace=tag.getAttribute('style').replace(/width:\s*(\d+)(%?)(px)?;/i,'');
         tag.setAttribute('style',stringtoreplace);
         if( document.getElementById('notification').classList.contains('greenbutton')){
+            for(let i of document.getElementsByClassName('notificationdot'))i.classList.add('hide');
             document.getElementsByClassName('sidebarcontainer')[0].style.width='50%';
             tag.style.width="50%";
         }else{
@@ -115,7 +118,6 @@ function resize(){
                 tag.setAttribute('style',stringtoreplace);
             }
         }
-        console.log(window.innerWidth);
         document.getElementsByClassName('maincontainer')[0].style.width=(window.innerWidth*66)/100+'px';
     }else if(window.innerWidth<=700){
         if( document.getElementById('notification').classList.contains('greenbutton')){
@@ -129,10 +131,8 @@ function resize(){
             document.getElementsByClassName('sidebarcontainer')[0].style.width='100%';
             document.getElementsByClassName('profilebarcontainer')[0].style.width='0';
         }
-        console.log(window.innerWidth);
         document.getElementsByClassName('maincontainer')[0].style.width=window.innerWidth+'px';
     }
-
 }
 function resizemenu_side(){
     let profile=document.getElementsByClassName('profilebarcontainer')[0];
@@ -158,3 +158,34 @@ function resizemaincontainer(){
         
     }
 }
+function loadcontent(){
+    let url=window.document.location.pathname;
+    let xhr=new XMLHttpRequest();
+    xhr.open('post',url,true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send('csrfmiddlewaretoken='+document.getElementsByName('csrfmiddlewaretoken')[0].value);
+    xhr.onload=function(){
+        if(this.status==200){
+            document.getElementsByClassName('maincontainer')[0].innerHTML=this.responseText;
+            window.top.history.replaceState({'title':window.top.document.title,'html':this.responseText},'');
+            if(document.title.startsWith('Poll')){
+                loadComment();
+                if(document.getElementById('choice-description-collapsed').value=='True')//for choices description collapsed or not
+                    for(tag of document.getElementsByClassName('choice-collapsed'))tag.style.maxHeight=tag.scrollHeight+'px';
+            }
+        }else{
+            document.getElementsByClassName('maincontainer')[0].innerHTML="Went Something Wrong";
+        }
+    }
+}
+window.onpopstate=function(e){
+    if(e.state){
+        e.preventDefault();
+        window.top.document.title=e.state.title;
+        document.getElementsByClassName('maincontainer')[0].innerHTML=e.state.html;
+        if(e.state.title.startsWith('Poll'))update=setTimeout(continusresponse,1000,lastcommentloadtime,[]);
+    }
+}
+window.addEventListener("DOMContentLoaded", function(){
+    resize();loadcontent();loadNotifications();
+});
